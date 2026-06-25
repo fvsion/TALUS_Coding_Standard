@@ -1,0 +1,177 @@
+# doctrine.toml — source of truth for DOCTRINE.md (the flattened must-gate contract).
+#
+# DOCTRINE.md is GENERATED from this file by scripts/gen-doctrine.py — never edit DOCTRINE.md by hand.
+# This file holds the distilled, always-loadable must-gates: each standard's hardest rules, ~one screen total,
+# each citing its standard + § so the full rule and its rationale are one lookup away. It is the executable
+# distillation; the standards remain the source of truth for the full rule.
+#
+# It mirrors the gates.toml / run-gates.py pattern: a .toml data file + a Python renderer. Adding or sharpening
+# a gate is editing this file and regenerating (python3 scripts/gen-doctrine.py), never editing the script.
+# A CI / pre-commit sync check (gen-doctrine.py --check) keeps DOCTRINE.md current with this file.
+#
+# Each [[standard]] = one standard, in canonical reading order, with:
+#   id     = the letter index (or "PY" for the language standard) — the gate handle prefix
+#   file   = the standard's filename, relative to the standards root
+#   title  = short human title
+#   gates  = the distilled MUST lines, each citing a § of `file`
+#
+# Curation rule: only true gates (a `must`), kept terse; the standard carries the prose. Sharpen here when a
+# standard's rules change, then regenerate.
+
+version = "1.3"
+
+[[standard]]
+id = "A"
+file = "A_TALUS_Coding_Standard.md"
+title = "Coding Standard (umbrella)"
+gates = [
+  "Determinism decides: behavior follows transparent, auditable, reproducible logic; an LLM never makes a decision (§2, §8).",
+  "Dependencies point inward: the domain core depends on nothing — no framework, I/O, terminal, or datastore (§2, §4).",
+  "Extend by addition, not modification: a new variant is a new unit behind an existing interface, never a new branch in a widening conditional (§2, §4).",
+  "Everything a reasonable operator would change is a named variable with one definition site; no magic literals in business logic (§2, §4).",
+  "Secure and OpSec by construction: validate untrusted input at the boundary, parameterize queries, encode output, scope-gate consequential actions, log to an immutable audit trail (§2, §8).",
+  "Cross-platform by default: target macOS, Linux, and Windows from day one and isolate per-OS code behind one adapter; a platform-bound tool declares the restriction with a reason (§2, §3.1).",
+  "One canonical toolchain per language with blocking CI gates; non-conforming code fails CI (§7).",
+  "Every non-trivial project carries an Architecture/ suite; design precedes code and traces to a principle or an ADR (§9, §11).",
+]
+
+[[standard]]
+id = "B"
+file = "B_AI_Coding_Phase_Guidelines.md"
+title = "AI Coding Phase Guidelines"
+gates = [
+  "Work in bounded phases: each declares entry, scope in and out, one objective, exit criteria, and a verification step (§2).",
+  "Cardinal rule: do one phase, verify it, record it, then stop for review; never roll into the next phase unprompted (§3).",
+  "Size the phase to the model, and budget the cost of verifying it, not just writing it (§4).",
+  "Verify with evidence, never 'looks done': tests, a run, green gates — and for a code phase, a diff-scoped auditor pass at the boundary, not deferred to the end (§6).",
+  "Record every stop in the phase ledger (STATUS.md) so the build is resumable across sessions and models (§7).",
+  "Keep the directive durable: presence (loaded directive) + salience (per-turn reminder) + re-anchor (STATUS.md) + enforcement (gates); subagents do not inherit the directive (§7.4).",
+]
+
+[[standard]]
+id = "C"
+file = "C_Documentation_and_Architecting_Standard.md"
+title = "Documentation & Architecting"
+gates = [
+  "Design precedes code: a non-trivial project is not ready to build without its design-spec set (§1, §3).",
+  "Carry the mandatory minimum design-spec set (the 00–08 Architecture/ baseline), concern-driven and sized to the tool (§4, §10).",
+  "Every material decision is an ADR, traceable — not folklore (§7).",
+  "Every cross-component contract is a first-class, owned, versioned artifact in the registry (§9).",
+  "Maintain STATUS and the build roadmap; the roadmap defines which phases exist and in what order (§11).",
+]
+
+[[standard]]
+id = "D"
+file = "D_Visual_UX_UI_Standard.md"
+title = "Visual UX/UI"
+gates = [
+  "The domain emits semantic roles and view-models; the adapter renders color, escape codes, or DOM — never the core (§2, §3).",
+  "Severity color is reserved for severity, never decorative; one loud thing per surface (§2).",
+  "A fully plain rendering (no color, no motion) always exists and is the guaranteed form for files, pipes, and reduced environments (§2, §4).",
+  "Meet the accessibility floor — it is a gate, not a preference (§7).",
+]
+
+[[standard]]
+id = "E"
+file = "E_API_and_Data_Contract_Standard.md"
+title = "API & Data Contract"
+gates = [
+  "The contract is the schema: integrate against a typed, machine-readable schema, never a sibling's human-readable output (§1, §3).",
+  "Contract-first: define and review the contract before building either the producer or the consumer (§2).",
+  "Evolve compatibly; a breaking change is versioned, announced, and registered — never silent (§4, §5).",
+  "One contract, two consumers: a producer emits the same envelope standalone or integrated, and never requires the rest of the system to exist (§1, §6).",
+  "Every contract has a known producer and known consumers in the registry (§11).",
+  "Validate every payload at the boundary against its schema (§10).",
+]
+
+[[standard]]
+id = "F"
+file = "F_Security_and_OpSec_Standard.md"
+title = "Security & OpSec"
+gates = [
+  "Secure by construction: parameterized queries, boundary input validation, output encoding, an authorization chokepoint (§1, §3).",
+  "Least privilege and defense in depth; fail closed — on error or ambiguity, deny (§1).",
+  "Secrets never touch source or logs; they load from a manager or the environment and are redacted everywhere (§4).",
+  "Consequential actions are recorded to an immutable audit trail with an attributable, approved trigger (§6).",
+  "Where a tool acts in a sensitive environment, OpSec is by construction: minimize footprint and on-disk residue, and clean up (§7).",
+  "Security gates run in CI: secret scan, dependency audit, and injection lint where applicable (§10).",
+]
+
+[[standard]]
+id = "G"
+file = "G_Observability_and_Reliability_Standard.md"
+title = "Observability & Reliability"
+gates = [
+  "Observable by construction: structured, correlated telemetry (logs, metrics, traces) built in as code is written, sized to tier (§1, §3).",
+  "Reliability is designed up front: timeouts, retries, idempotency, and graceful degradation are architectural choices (§2, §7).",
+  "Define SLIs/SLOs and measure against them — not by vibes (§5).",
+  "Every deploy is reversible with a tested rollback; an irreversible deploy is a design defect (§4, §8).",
+  "Telemetry never carries secrets or sensitive data and is separate from the audit trail (§1; Security & OpSec Standard §4).",
+  "Scope is proportional to tier — enough to operate the thing, never theater (§2).",
+]
+
+[[standard]]
+id = "H"
+file = "H_Git_and_Release_Engineering_Standard.md"
+title = "Git & Release Engineering"
+gates = [
+  "Trunk is always releasable: main is green at every commit; nothing that breaks a gate merges (§1, §2).",
+  "Small, reviewable changes: one phase is roughly one branch and one PR (§1, §4).",
+  "Conventional Commits; history is an attributable record, not a scratchpad (§3).",
+  "SemVer plus a generated-from-history changelog; a release is a tag and a deterministic build from it (§5, §6, §7).",
+  "Merge and release are blocked by mechanical gates, not goodwill (§1, §8).",
+  "The dual-use git posture keeps internal context — the journal (`.talus/`), `.claude/`, and design-time artifacts (`Architecture/`, `Research_and_Planning/`) — out of public releases unless deliberately published (§9).",
+]
+
+[[standard]]
+id = "I"
+file = "I_Licensing_and_Editions_Standard.md"
+title = "Licensing & Editions"
+gates = [
+  "An edition is a seam, not a fork: one codebase; pro is strictly additive through defined extension points (§2, §3).",
+  "The community edition builds, runs, and tests with pro entirely absent and never depends on pro (§2, §5).",
+  "The community build is produced by excluding pro at build time — never by copying, never by a crackable runtime check (§5, §6).",
+  "Each shipped artifact declares its license (SPDX) and edition (§7).",
+]
+
+[[standard]]
+id = "J"
+file = "J_LLM_AI_Integration_Standard.md"
+title = "LLM / AI Integration"
+gates = [
+  "The model is glue at a named seam: it never gates control flow, authorizes an action, or decides what/when/who (§1, §2).",
+  "All model input is untrusted — any external text may carry instructions; defend against direct and indirect prompt injection (§1, §3).",
+  "All model output is untrusted: validate it as data; never execute or obey it unchecked (§1, §4).",
+  "Least privilege for the model; high-consequence actions stay behind a human and the deterministic core (§1, §5).",
+  "Assume the context leaks: no secrets in prompts, and minimize the data placed there (§1, §6).",
+  "Isolate the non-deterministic seam behind a port and evaluate the feature; do not assume it works (§1, §7).",
+]
+
+[[standard]]
+id = "K"
+file = "K_User_Documentation_Standard.md"
+title = "User Documentation"
+gates = [
+  "Ship the artifacts the tool's tier requires; the four jobs (overview, tasks, reference, learning) are served and findable (§8, §3).",
+  "Each artifact holds its depth band and anti-scope: no artifact absorbs another's job; the README routes out, never swallows the manual (§4, §8).",
+  "User docs hold the voice: show-don't-claim, no banned tells, limits stated plainly, and no em/en dashes or double-hyphen substitutes (§9).",
+  "Docs match behavior: examples run, and a behavior change updates its docs in the same change (§11).",
+  "The CLI `--help`/man surface derives from the RTFM — one source of truth (§6, §11).",
+  "Every fact has one home, linked from the others — no copy-paste duplication (§2, §10).",
+]
+
+[[standard]]
+id = "PY"
+file = "languages/Python_Coding_Standard.md"
+title = "Python (language standard)"
+gates = [
+  "Pick the distribution tier (library / application / platform) and match its layout, build backend, and dependency budget (§4, §5, §6).",
+  "Honor the version floors: operator side 3.12+, deployed floor justified down to 3.9; adopt the highest the target reality allows (§3).",
+  "Fully typed; Pyright (strict) passes in CI; a `# type: ignore` is reasoned and rare (§13).",
+  "Layered architecture enforced by import-linter; the domain imports no framework or adapter (§8, §23.3).",
+  "Volatile detail (terminal, subprocess, datastore, external-tool output) lives behind a port and adapter (§10).",
+  "User output goes through the presentation port; color is capability-gated (isatty / NO_COLOR) and degrades to plain for files and pipes (§18).",
+  "The canonical toolchain is the only path CI permits: ruff (lint + format), Pyright strict, pytest + coverage, uv lock, import-linter, secret scan, dependency audit, injection lint (§23.1).",
+  "Security coding: parameterized queries, boundary validation, subprocess argument lists (never shell=True with untrusted input), secrets out of source and logs (§25).",
+  "Cross-platform: declare supported OSes, guard POSIX-only imports with a fallback, and run a CI OS matrix across the declared platforms (§17.4).",
+]

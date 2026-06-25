@@ -1,0 +1,469 @@
+# coverage.toml — source of truth for GATE_COVERAGE.md (the self-conformance gate-coverage audit).
+#
+# For every must-gate in DOCTRINE.md (the handles [A1]..[PY9], defined in doctrine.toml), this records the
+# enforcement arm that actually catches a violation. It is what makes "enforced, not aspirational" honest:
+# a gate with no catch is a gap, surfaced here, not hidden.
+#
+# GATE_COVERAGE.md is GENERATED from this file by scripts/gen-coverage.py — never edit it by hand. The
+# generator cross-checks this file against doctrine.toml: every gate handle must have exactly one row, no row
+# may reference a missing handle, and each row's `must` token must still be a substring of that gate's text
+# (a drift guard — if a gate is reworded or reordered, the check fails loudly instead of silently mismapping).
+#
+# catch levels — a strength ladder, strongest first:
+#   ci-gate  = a blocking automated gate: a gates.toml / run-gates.py tool, or a repo/project CI check
+#              (strip-proprietary.sh, gen-doctrine.py, a commit-lint, a build job). A tool returns pass/fail.
+#   auditor  = talus-auditor review-time judgment — a FAIL/WARN finding tied to a §, the check a linter cannot make.
+#   design   = caught at design time by the pipeline: talus-architect (design + ADRs) / talus-cartographer
+#              (the contract registry). These produce and validate artifacts before code exists.
+#   phase    = the talus-phase skill + AI Coding Phase Guidelines process: the phase template, the stop-for-
+#              review gate, the STATUS ledger.
+#   advisory = a strong default with no named TALUS arm; caught only downstream (the adopting project's own
+#              tooling/review) or by general judgment. Each advisory row carries an explicit justification.
+#
+# Each row: gate (handle) · must (drift-guard token, a leading substring of the gate text) · catch · mechanism.
+
+version = "1.3"
+
+# ── A — Coding Standard (umbrella) ──────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "A1"
+must = "Determinism decides"
+catch = "auditor"
+mechanism = "talus-auditor: decomposable-decision and 'no LLM decides' judgment (cross-checks the J standard's seam rules); no linter can decide this."
+
+[[coverage]]
+gate = "A2"
+must = "Dependencies point inward"
+catch = "ci-gate"
+mechanism = "import-linter (gates.toml `imports`, Python §23.3) fails a forbidden cross-layer import; talus-auditor confirms the domain is framework/I/O-free (§8)."
+
+[[coverage]]
+gate = "A3"
+must = "Extend by addition"
+catch = "auditor"
+mechanism = "talus-auditor §9 (SOLID): flags a widening if/match ladder where a strategy/registry belongs."
+
+[[coverage]]
+gate = "A4"
+must = "Everything a reasonable operator"
+catch = "auditor"
+mechanism = "talus-auditor §11: flags magic literals in business logic and scattered os.environ reads."
+
+[[coverage]]
+gate = "A5"
+must = "Secure and OpSec by construction"
+catch = "ci-gate"
+mechanism = "secret-scan + dep-audit + injection lint (gates.toml); talus-auditor §25 for boundary validation, output encoding, and the authorization chokepoint."
+
+[[coverage]]
+gate = "A6"
+must = "Cross-platform by default"
+catch = "auditor"
+mechanism = "talus-auditor §17.4/§17.5: declared platforms (classifiers + README), per-OS code behind one adapter, guarded POSIX-only imports; the project's CI OS matrix is the blocking check."
+
+[[coverage]]
+gate = "A7"
+must = "One canonical toolchain"
+catch = "ci-gate"
+mechanism = "this is the gate set itself: scripts/run-gates.py over gates.toml; non-conforming code fails CI."
+
+[[coverage]]
+gate = "A8"
+must = "Every non-trivial project carries"
+catch = "auditor"
+mechanism = "talus-auditor flags a missing Architecture/ suite or README tier (§24); talus-architect/scribe produce it at design time (C standard)."
+
+# ── B — AI Coding Phase Guidelines ──────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "B1"
+must = "Work in bounded phases"
+catch = "phase"
+mechanism = "talus-phase skill: the six-part phase template; an open-ended request fails the shape check before any code."
+
+[[coverage]]
+gate = "B2"
+must = "Cardinal rule"
+catch = "phase"
+mechanism = "talus-phase skill + the stop-for-review gate (Phase Guidelines §3): the session stops at the boundary and yields."
+
+[[coverage]]
+gate = "B3"
+must = "Size the phase to the model"
+catch = "phase"
+mechanism = "talus-phase skill step 2 (model-aware sizing, Phase Guidelines §4); the reviewer rejects a mis-sized phase at the stop."
+
+[[coverage]]
+gate = "B4"
+must = "Verify with evidence"
+catch = "phase"
+mechanism = "talus-phase skill step 4: tests/run/green gates plus a diff-scoped talus-auditor pass at the boundary; the gate evidence line records a real run (run-gates.py)."
+
+[[coverage]]
+gate = "B5"
+must = "Record every stop"
+catch = "phase"
+mechanism = "talus-phase skill step 5 updates the STATUS ledger; talus-chronicler maintains the journal so the build is resumable."
+
+[[coverage]]
+gate = "B6"
+must = "Keep the directive durable"
+catch = "ci-gate"
+mechanism = "install.sh installs the per-turn reminder hook and the default-on git pre-commit gate (run-gates.py --fast); the pre-commit + CI gate is the context-independent enforcement layer (Phase Guidelines §7.4)."
+
+# ── C — Documentation & Architecting ────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "C1"
+must = "Design precedes code"
+catch = "auditor"
+mechanism = "talus-auditor flags missing design specs against C §3; talus-architect produces the design before build."
+
+[[coverage]]
+gate = "C2"
+must = "Carry the mandatory minimum"
+catch = "design"
+mechanism = "talus-scribe authors the 00–08 Architecture/ baseline (C §4); talus-auditor flags its absence."
+
+[[coverage]]
+gate = "C3"
+must = "Every material decision is an ADR"
+catch = "design"
+mechanism = "talus-architect authors ADRs (C §7); review flags an unexplained material decision with no ADR."
+
+[[coverage]]
+gate = "C4"
+must = "Every cross-component contract"
+catch = "design"
+mechanism = "talus-cartographer owns the contract registry (C §9 / E §11) — a contract without a registered owner/version is flagged at design time."
+
+[[coverage]]
+gate = "C5"
+must = "Maintain STATUS"
+catch = "phase"
+mechanism = "talus-phase updates STATUS at each stop; talus-chronicler maintains the roadmap/journal (C §11)."
+
+# ── D — Visual UX/UI ────────────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "D1"
+must = "The domain emits semantic roles"
+catch = "auditor"
+mechanism = "talus-auditor §10/§18: the domain emits roles/view-models and the adapter renders; raw color/escape codes in the core are a finding."
+
+[[coverage]]
+gate = "D2"
+must = "Severity color is reserved"
+catch = "auditor"
+mechanism = "talus-auditor §18 color discipline; a Visual-UX review confirms severity semantics (loud = important) hold."
+
+[[coverage]]
+gate = "D3"
+must = "A fully plain rendering"
+catch = "auditor"
+mechanism = "talus-auditor §18: ANSI to a redirected file/pipe (color not gated on isatty / NO_COLOR) is a FAIL; the plain form is golden-file testable (§22.3)."
+
+[[coverage]]
+gate = "D4"
+must = "Meet the accessibility floor"
+catch = "advisory"
+mechanism = "no language-agnostic automated gate today: the adopting project runs accessibility tooling (e.g. axe/pa11y) and a Visual-UX review verifies D §7. The sole advisory residual — strong default, flagged honestly."
+
+# ── E — API & Data Contract ─────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "E1"
+must = "The contract is the schema"
+catch = "design"
+mechanism = "talus-architect/cartographer: integration is against a registered schema; talus-auditor flags code that screen-scrapes a sibling's human output."
+
+[[coverage]]
+gate = "E2"
+must = "Contract-first"
+catch = "design"
+mechanism = "talus-architect designs and reviews the contract before either side is built (E §2)."
+
+[[coverage]]
+gate = "E3"
+must = "Evolve compatibly"
+catch = "design"
+mechanism = "talus-cartographer registers a breaking change (E §5); a schema-diff/compat check in the producer's CI is the recommended blocking gate."
+
+[[coverage]]
+gate = "E4"
+must = "One contract, two consumers"
+catch = "design"
+mechanism = "talus-architect: the producer emits the same envelope standalone or integrated and never requires the rest of the system (E §6)."
+
+[[coverage]]
+gate = "E5"
+must = "Every contract has a known producer"
+catch = "design"
+mechanism = "talus-cartographer's registry is exactly this invariant: no contract without a documented producer and consumers (E §11)."
+
+[[coverage]]
+gate = "E6"
+must = "Validate every payload"
+catch = "auditor"
+mechanism = "talus-auditor §25: untrusted input validated at the boundary against its schema before it reaches the domain."
+
+# ── F — Security & OpSec ────────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "F1"
+must = "Secure by construction"
+catch = "ci-gate"
+mechanism = "injection lint (raw-string SQL / non-parameterized Cypher fails CI, §23.1); talus-auditor §25 for boundary validation, output encoding, the authorization chokepoint."
+
+[[coverage]]
+gate = "F2"
+must = "Least privilege and defense in depth"
+catch = "auditor"
+mechanism = "talus-auditor §25 judgment: over-broad scope/permissions, a single load-bearing control, default-allow on error."
+
+[[coverage]]
+gate = "F3"
+must = "Secrets never touch source"
+catch = "ci-gate"
+mechanism = "secret-scan (gitleaks, gates.toml) fails a credential-shaped string in source; talus-auditor §16 flags secrets routed through logs."
+
+[[coverage]]
+gate = "F4"
+must = "Consequential actions are recorded"
+catch = "auditor"
+mechanism = "talus-auditor / talus-architect: a consequential action without an immutable, attributable audit record is a finding (F §6)."
+
+[[coverage]]
+gate = "F5"
+must = "Where a tool acts in a sensitive"
+catch = "auditor"
+mechanism = "talus-auditor §25/§17: temp-artifact cleanup, on-disk residue, observable footprint for a tool in a sensitive environment (F §7)."
+
+[[coverage]]
+gate = "F6"
+must = "Security gates run in CI"
+catch = "ci-gate"
+mechanism = "secret-scan + dep-audit + injection lint run by run-gates.py over gates.toml (F §10)."
+
+# ── G — Observability & Reliability ─────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "G1"
+must = "Observable by construction"
+catch = "design"
+mechanism = "talus-architect sizes telemetry to tier (G §3); talus-auditor §16 checks the two-stream logging discipline in code."
+
+[[coverage]]
+gate = "G2"
+must = "Reliability is designed up front"
+catch = "design"
+mechanism = "talus-architect: timeouts/retries/idempotency/degradation are design choices (G §7); the production-readiness review (G §11) is the gate."
+
+[[coverage]]
+gate = "G3"
+must = "Define SLIs/SLOs"
+catch = "design"
+mechanism = "the production-readiness review (G §11) requires declared SLIs/SLOs measured against; no code linter checks this."
+
+[[coverage]]
+gate = "G4"
+must = "Every deploy is reversible"
+catch = "design"
+mechanism = "deploy-safety design + the production-readiness review (G §8/§11): a tested rollback is required before ship."
+
+[[coverage]]
+gate = "G5"
+must = "Telemetry never carries secrets"
+catch = "auditor"
+mechanism = "talus-auditor §16 (sensitive data never travels through logging); secret-scan is a backstop over emitted telemetry."
+
+[[coverage]]
+gate = "G6"
+must = "Scope is proportional to tier"
+catch = "design"
+mechanism = "talus-architect sizes the observability/reliability weight to the tool's tier (G §2); the PRR rejects theater or under-instrumentation."
+
+# ── H — Git & Release Engineering ───────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "H1"
+must = "Trunk is always releasable"
+catch = "ci-gate"
+mechanism = "branch-protection + the merge-blocking gate set (H §8): nothing that breaks a gate reaches main."
+
+[[coverage]]
+gate = "H2"
+must = "Small, reviewable changes"
+catch = "phase"
+mechanism = "one phase is one branch and one PR (Phase Guidelines / H §4); PR review rejects a giant drop."
+
+[[coverage]]
+gate = "H3"
+must = "Conventional Commits"
+catch = "ci-gate"
+mechanism = "a commit-message lint (e.g. commitlint) in CI rejects a non-conforming commit (H §3)."
+
+[[coverage]]
+gate = "H4"
+must = "SemVer plus a generated"
+catch = "ci-gate"
+mechanism = "the release tooling (tag-driven, changelog-from-history, deterministic build) is mechanical (H §5–§7)."
+
+[[coverage]]
+gate = "H5"
+must = "Merge and release are blocked"
+catch = "ci-gate"
+mechanism = "the CI gate orchestration blocks merge and publish (H §8) — the same run-gates set plus the per-standard gates."
+
+[[coverage]]
+gate = "H6"
+must = "The dual-use git posture"
+catch = "ci-gate"
+mechanism = "the public release is produced mechanically (produce-the-public-tree, never push the working repo); a leak/visibility scan over the produced tree is the gate (strip-proprietary.sh --check here, or the project's equivalent), keeping the journal, .claude/, and design-time artifacts (Architecture/, Research_and_Planning/) out of public (H §9)."
+
+# ── I — Licensing & Editions ────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "I1"
+must = "An edition is a seam"
+catch = "auditor"
+mechanism = "talus-auditor reviews the pro/ seam as extension-by-addition (I §3): pro attaches through defined seams, never modifies core."
+
+[[coverage]]
+gate = "I2"
+must = "The community edition builds"
+catch = "ci-gate"
+mechanism = "a community-edition build job (pro absent) that builds, runs, and tests green is the gate (I §5)."
+
+[[coverage]]
+gate = "I3"
+must = "The community build is produced"
+catch = "ci-gate"
+mechanism = "the build-time exclusion of pro/ plus a leak scan over the community artifact (the same one-source-strip-the-overlay pattern as strip-proprietary.sh) verifies no pro code ships (I §5/§6)."
+
+[[coverage]]
+gate = "I4"
+must = "Each shipped artifact declares"
+catch = "ci-gate"
+mechanism = "an SPDX/license-header check (e.g. reuse lint) over each artifact (I §7)."
+
+# ── J — LLM / AI Integration ────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "J1"
+must = "The model is glue at a named seam"
+catch = "auditor"
+mechanism = "talus-auditor: the LLM call site is a named, typed seam that gates no control flow and authorizes no action (J §2); an ambient model capability is a finding."
+
+[[coverage]]
+gate = "J2"
+must = "All model input is untrusted"
+catch = "auditor"
+mechanism = "talus-auditor §25 + J §3: direct/indirect prompt-injection defense — external text reaching the model is treated as hostile."
+
+[[coverage]]
+gate = "J3"
+must = "All model output is untrusted"
+catch = "auditor"
+mechanism = "talus-auditor §25 + J §4: model output is validated as data, never executed or obeyed unchecked."
+
+[[coverage]]
+gate = "J4"
+must = "Least privilege for the model"
+catch = "auditor"
+mechanism = "talus-auditor: minimal tools/data/authority for the model; high-consequence actions stay behind a human and the deterministic core (J §5)."
+
+[[coverage]]
+gate = "J5"
+must = "Assume the context leaks"
+catch = "auditor"
+mechanism = "talus-auditor §25 + J §6: no secrets in prompts, data minimization; secret-scan is a backstop over prompt-building code."
+
+[[coverage]]
+gate = "J6"
+must = "Isolate the non-deterministic seam"
+catch = "design"
+mechanism = "talus-architect places the model behind a port (umbrella Principle 2); an eval harness (J §7) is the evaluation gate."
+
+# ── K — User Documentation ──────────────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "K1"
+must = "Ship the artifacts the tool's tier requires"
+catch = "ci-gate"
+mechanism = "a docs-presence check (the tier-required artifacts from K §8 exist) plus an internal link-check (no broken cross-links, so the four jobs stay findable); talus-herald confirms each job is actually served."
+
+[[coverage]]
+gate = "K2"
+must = "Each artifact holds its depth band"
+catch = "design"
+mechanism = "talus-herald (author + review) holds each artifact to its depth band and anti-scope (K §4–§8): a README growing into the manual, or a tutorial padded with reference, is a herald finding."
+
+[[coverage]]
+gate = "K3"
+must = "User docs hold the voice"
+catch = "auditor"
+mechanism = "talus-herald review-time voice judgment — banned tells, show-don't-claim, honest caveats (K §9) — the judgment a linter cannot make; the no-dash sub-rule is mechanically backstopped by a grep gate (grep -nE '[–—]| -- ')."
+
+[[coverage]]
+gate = "K4"
+must = "Docs match behavior"
+catch = "ci-gate"
+mechanism = "doc code blocks execute where a runner is feasible (K §11); talus-herald flags docs-behavior drift in review when no runner covers it."
+
+[[coverage]]
+gate = "K5"
+must = "The CLI `--help`/man surface derives"
+catch = "ci-gate"
+mechanism = "a --help/man ↔ RTFM parity check where the tool has a CLI (K §6, §11): the help surface derives from the one reference, so a divergence fails the check."
+
+[[coverage]]
+gate = "K6"
+must = "Every fact has one home"
+catch = "design"
+mechanism = "talus-herald: each fact has one home, linked from the others (K §2, §10); copy-paste duplication across the doc set is a finding."
+
+# ── PY — Python (language standard) ─────────────────────────────────────────────────────────────────────
+[[coverage]]
+gate = "PY1"
+must = "Pick the distribution tier"
+catch = "auditor"
+mechanism = "talus-auditor §4–6: tier, layout (src/ vs flat vs layered), build backend, and dependency budget fit the declared tier."
+
+[[coverage]]
+gate = "PY2"
+must = "Honor the version floors"
+catch = "auditor"
+mechanism = "talus-auditor §3: pyproject requires-python vs README floor; ruff/pyright target-version pin the floor mechanically."
+
+[[coverage]]
+gate = "PY3"
+must = "Fully typed"
+catch = "ci-gate"
+mechanism = "Pyright strict (gates.toml `type-check`, §13.2): a type error fails CI."
+
+[[coverage]]
+gate = "PY4"
+must = "Layered architecture enforced by import-linter"
+catch = "ci-gate"
+mechanism = "import-linter (gates.toml `imports`, §23.3): a dependency arrow pointing the wrong way fails CI."
+
+[[coverage]]
+gate = "PY5"
+must = "Volatile detail"
+catch = "auditor"
+mechanism = "talus-auditor §10: terminal/subprocess/datastore/external-tool output lives behind a port + adapter, not in the domain."
+
+[[coverage]]
+gate = "PY6"
+must = "User output goes through the presentation port"
+catch = "auditor"
+mechanism = "talus-auditor §18: user output via the presentation port; color capability-gated (isatty / NO_COLOR), plain for files and pipes."
+
+[[coverage]]
+gate = "PY7"
+must = "The canonical toolchain is the only path"
+catch = "ci-gate"
+mechanism = "the full gates.toml set via run-gates.py: ruff, Pyright strict, pytest+coverage, uv lock, import-linter, secret-scan, dep-audit, injection lint (§23.1)."
+
+[[coverage]]
+gate = "PY8"
+must = "Security coding"
+catch = "ci-gate"
+mechanism = "injection lint + secret-scan (gates.toml); talus-auditor §20/§25 for subprocess argument lists (never shell=True with untrusted input)."
+
+[[coverage]]
+gate = "PY9"
+must = "Cross-platform: declare supported OSes"
+catch = "auditor"
+mechanism = "talus-auditor §17.4: declared OSes, guarded POSIX-only imports with a fallback; the project's CI OS matrix across declared platforms is the blocking check."

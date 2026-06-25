@@ -1,0 +1,45 @@
+# gates.toml — the machine-readable mirror of each language standard's CI gate set ("gates as data").
+#
+# scripts/run-gates.py reads this and runs the gates for whatever language(s) a project actually uses. The
+# runner hardcodes no toolchain, so adding a language is adding a section here (plus its language standard),
+# never editing the script. A language with no section gets a "judgment-only" review (the cross-language
+# auditor reasons from the umbrella standards instead).
+#
+# Each language section has:
+#   detect   = filenames whose presence marks the language in a project
+#   standard = the human standard this mirrors (keep the two in sync; the standard is the rationale, this is
+#              the executable form)
+#   [[<lang>.gates]] = one runnable gate: name + command (run from the project root)
+
+[python]
+# Mirrors languages/Python_Coding_Standard.md §23.1. Operator floor 3.12 (ADR-PY-001).
+detect = ["pyproject.toml", "setup.cfg", "setup.py"]
+standard = "languages/Python_Coding_Standard.md §23"
+
+[[python.gates]]
+name = "lint+format"
+command = "ruff check . && ruff format --check ."
+
+[[python.gates]]
+name = "type-check"
+command = "pyright"
+
+[[python.gates]]
+name = "tests+coverage"
+command = "pytest -q"
+fast = false           # slow; --fast (the pre-commit gate) skips it. CI runs the full set.
+
+[[python.gates]]
+name = "imports"
+command = "lint-imports"
+
+[[python.gates]]
+name = "dep-audit"
+command = "pip-audit"
+
+[[python.gates]]
+name = "secret-scan"
+command = "gitleaks detect --no-banner --redact"
+
+# Future languages (C, TypeScript, …) add a section here when their language standard lands. Until then a
+# project in that language reviews judgment-only.
